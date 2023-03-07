@@ -1,0 +1,11 @@
+SELECT
+    device_type,
+    CASE
+        -- for iOS devices, extract the URL from between <url> and </url> tags
+        WHEN LOWER(device_type) LIKE '%ios%' THEN REGEXP_REPLACE(stats_access_link, '.*<url>([^<]+)</url>.*', '\\1', 1, 0, 'i')
+        -- for Android devices, extract the URL after the protocol part
+        WHEN LOWER(device_type) LIKE '%android%' THEN REGEXP_REPLACE(stats_access_link, '^[^:]+:(\/\/)?([^\/]+)[\/]?.*', '\\2', 1, 0, 'i')
+        -- for other devices, extract the URL after the last forward slash
+        ELSE REGEXP_REPLACE(stats_access_link, '.+\/([^\/]+)$', '\\1', 1, 0, 'i')
+    END AS pure_url
+FROM your_table;
